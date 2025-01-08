@@ -72,6 +72,7 @@ async fn main() -> Result<(), Box<dyn std::error::Error>> {
     txmap.insert("lat", 51.4730.into());
     txmap.insert("lon", 7.2163.into());
     txmap.insert("alt", 23.into());
+    txmap.insert("frequency", 1260.500.into());
 
 
     println!("{:?}", txmap);
@@ -84,13 +85,22 @@ async fn main() -> Result<(), Box<dyn std::error::Error>> {
         .send()
         .await?;
 
-    let resp = txresponse.text().await?;
-    let resp_fmt: Value = serde_json::from_str(&resp)?;
+    let rstatus = txresponse.status();
 
-    //println!("{:#?}", txresponse);
+    match rstatus {
+        reqwest::StatusCode::OK => {
+
+            print!("Telemetry received");
+        }
+        _ => {
+
+            let resp = txresponse.text().await?;
+            let resp_fmt: Value = serde_json::from_str(&resp)?;
+            println!("{:#?}", resp_fmt);
+        }
+    }
+
     //println!("{:#?}", txresponse.headers());
-    println!("{:#?}", resp_fmt);
-
 
     Ok(())
 }
