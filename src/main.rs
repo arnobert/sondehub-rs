@@ -42,17 +42,36 @@ async fn main() -> Result<(), Box<dyn std::error::Error>> {
         Float(f32),
     }
 
-    let mut txmap = HashMap::new();
-    txmap.insert("dev", TxmapValues::String("string"));
-    txmap.insert("software_name", TxmapValues::String(SW_NAME));
-    txmap.insert("software_version", TxmapValues::String(SW_VERSION));
-    txmap.insert("uploader_callsign", TxmapValues::String(UPLOADER_CALLSIGN));
-    txmap.insert("time_received", TxmapValues::String("2025-01-08T22:01:10.225Z"));
-    txmap.insert("payload_callsign", TxmapValues::String("DL2SSB-10"));
-    txmap.insert("datetime", TxmapValues::String(&dt));
-    txmap.insert("lat", TxmapValues::Float(51.4730));
-    txmap.insert("lon", TxmapValues::Float(7.2163));
-    txmap.insert("alt", TxmapValues::Int(23));
+    impl<'a> From<&'a str> for TxmapValues<'a> {
+        fn from(value: &'a str) -> Self {
+            TxmapValues::String(value)
+        }
+    }
+
+    impl<'a> From<i32> for TxmapValues<'a> {
+        fn from(value: i32) -> Self {
+            TxmapValues::Int(value)
+        }
+    }
+
+    impl<'a> From<f32> for TxmapValues<'a> {
+        fn from(value: f32) -> Self {
+            TxmapValues::Float(value)
+        }
+    }
+
+
+    let mut txmap: HashMap<&str, TxmapValues> = HashMap::new();
+    txmap.insert("dev", "string".into());
+    txmap.insert("software_name", SW_NAME.into());
+    txmap.insert("software_version", SW_VERSION.into());
+    txmap.insert("uploader_callsign", UPLOADER_CALLSIGN.into());
+    txmap.insert("time_received", "2025-01-08T22:01:10.225Z".into());
+    txmap.insert("payload_callsign", "DL2SSB-10".into());
+    txmap.insert("datetime", (&*dt).into());
+    txmap.insert("lat", 51.4730.into());
+    txmap.insert("lon", 7.2163.into());
+    txmap.insert("alt", 23.into());
 
 
     println!("{:?}", txmap);
