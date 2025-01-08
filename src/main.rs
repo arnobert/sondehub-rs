@@ -3,9 +3,13 @@ use std::collections::HashMap;
 use reqwest::header::ACCEPT_ENCODING;
 use serde_json::{Value};
 use serde::{Deserialize, Serialize};
+use chrono::{DateTime, Local, SecondsFormat};
 
 #[tokio::main]
 async fn main() -> Result<(), Box<dyn std::error::Error>> {
+
+    let dt = Local::now().to_utc()
+        .to_rfc3339_opts(SecondsFormat::Secs, true);
 
     //
     // GET
@@ -27,23 +31,23 @@ async fn main() -> Result<(), Box<dyn std::error::Error>> {
 
     #[derive(Debug, Serialize, Deserialize)]
     #[serde(untagged)]
-    enum txmap_values {
-        String(&'static str),
+    enum TxmapValues<'a> {
+        String(&'a str),
         Int(i32),
         Float(f32),
     }
 
     let mut txmap = HashMap::new();
-    txmap.insert("dev", txmap_values::String("string"));
-    txmap.insert("software_name", txmap_values::String("sondehub-rs"));
-    txmap.insert("software_version", txmap_values::String("0.01"));
-    txmap.insert("uploader_callsign", txmap_values::String("DL2SSB"));
-    txmap.insert("time_received", txmap_values::String("2024-12-16T14:01:10.225Z"));
-    txmap.insert("payload_callsign", txmap_values::String("DL2SSB-10"));
-    txmap.insert("datetime", txmap_values::String("2024-12-16T14:01:10.225Z"));
-    txmap.insert("lat", txmap_values::Float(51.4730));
-    txmap.insert("lon", txmap_values::Float(7.2163));
-    txmap.insert("alt", txmap_values::Int(23));
+    txmap.insert("dev", TxmapValues::String("string"));
+    txmap.insert("software_name", TxmapValues::String("sondehub-rs"));
+    txmap.insert("software_version", TxmapValues::String("0.01"));
+    txmap.insert("uploader_callsign", TxmapValues::String("DL2SSB"));
+    txmap.insert("time_received", TxmapValues::String("2025-01-08T22:01:10.225Z"));
+    txmap.insert("payload_callsign", TxmapValues::String("DL2SSB-10"));
+    txmap.insert("datetime", TxmapValues::String(&dt));
+    txmap.insert("lat", TxmapValues::Float(51.4730));
+    txmap.insert("lon", TxmapValues::Float(7.2163));
+    txmap.insert("alt", TxmapValues::Int(23));
 
 
     println!("{:?}", txmap);
@@ -56,9 +60,12 @@ async fn main() -> Result<(), Box<dyn std::error::Error>> {
         .send()
         .await?;
 
-    println!("{:#?}", txresponse);
-    println!("{:#?}", txresponse.headers());
-    println!("{:#?}", txresponse.text().await?);
+    let resp = txresponse.text().await?;
+    let resp_fmt: Value = serde_json::from_str(&resp)?;
+
+    //println!("{:#?}", txresponse);
+    //println!("{:#?}", txresponse.headers());
+    println!("{:#?}", resp_fmt);
 
 
     Ok(())
