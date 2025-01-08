@@ -5,6 +5,11 @@ use serde_json::{Value};
 use serde::{Deserialize, Serialize};
 use chrono::{DateTime, Local, SecondsFormat};
 
+const UPLOADER_CALLSIGN: &str = "DL2SSB";
+const SW_VERSION: &str = env!("CARGO_PKG_VERSION");
+const SW_NAME: &str = env!("CARGO_PKG_NAME");
+
+
 #[tokio::main]
 async fn main() -> Result<(), Box<dyn std::error::Error>> {
 
@@ -39,9 +44,9 @@ async fn main() -> Result<(), Box<dyn std::error::Error>> {
 
     let mut txmap = HashMap::new();
     txmap.insert("dev", TxmapValues::String("string"));
-    txmap.insert("software_name", TxmapValues::String("sondehub-rs"));
-    txmap.insert("software_version", TxmapValues::String("0.01"));
-    txmap.insert("uploader_callsign", TxmapValues::String("DL2SSB"));
+    txmap.insert("software_name", TxmapValues::String(SW_NAME));
+    txmap.insert("software_version", TxmapValues::String(SW_VERSION));
+    txmap.insert("uploader_callsign", TxmapValues::String(UPLOADER_CALLSIGN));
     txmap.insert("time_received", TxmapValues::String("2025-01-08T22:01:10.225Z"));
     txmap.insert("payload_callsign", TxmapValues::String("DL2SSB-10"));
     txmap.insert("datetime", TxmapValues::String(&dt));
